@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบจองเวลาออนไลน์</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .nav-links a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .booking-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .booking-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            }
+        }
+        
+        .calendar-container, .form-container {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+        
+        .calendar-day {
+            text-align: center;
+            padding: 10px 5px;
+            font-weight: bold;
+            color: #6a11cb;
+        }
+        
+        .calendar-date {
+            text-align: center;
+            padding: 10px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .calendar-date:hover {
+            background-color: #e9ecef;
+        }
+        
+        .calendar-date.selected {
+            background-color: #6a11cb;
+            color: white;
+        }
+        
+        .calendar-date.disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 1rem;
+        }
+        
+        .time-slot {
+            padding: 10px;
+            text-align: center;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .time-slot:hover {
+            background-color: #e9ecef;
+        }
+        
+        .time-slot.selected {
+            background-color: #2575fc;
+            color: white;
+        }
+        
+        .time-slot.booked {
+            background-color: #ff6b6b;
+            color: white;
+            cursor: not-allowed;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .confirmation {
+            display: none;
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-top: 2rem;
+        }
+        
+        .confirmation h2 {
+            color: #6a11cb;
+            margin-bottom: 1rem;
+        }
+        
+        .confirmation-details {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            text-align: left;
+        }
+        
+        .confirmation-icon {
+            font-size: 4rem;
+            color: #28a745;
+            margin-bottom: 1rem;
+        }
+        
+        .external-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .external-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.7rem 1.5rem;
+            background: #f8f9fa;
+            color: #6a11cb;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .external-link:hover {
+            background: #6a11cb;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 1.5rem;
+            color: #6c757d;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .footer-links a {
+            color: #6c757d;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: #6a11cb;
+        }
+        
+        .quick-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .info-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+        
+        .info-card i {
+            font-size: 2.5rem;
+            color: #6a11cb;
+            margin-bottom: 1rem;
+        }
+        
+        .info-card h3 {
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        
+        .info-card p {
+            color: #6c757d;
+            margin-bottom: 1rem;
+        }
+        
+        .info-card a {
+            color: #6a11cb;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .info-card a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ระบบจองเวลาออนไลน์</h1>
+            <p class="subtitle">จองเวลาที่สะดวกได้ง่ายๆ ในไม่กี่ขั้นตอน</p>
+            
+            <div class="nav-links">
+                <a href="#booking-form"><i class="fas fa-calendar-check"></i> จองตอนนี้</a>
+                <a href="#services"><i class="fas fa-concierge-bell"></i> บริการของเรา</a>
+                <a href="#contact"><i class="fas fa-phone-alt"></i> ติดต่อเรา</a>
+                <a href="#faq"><i class="fas fa-question-circle"></i> คำถามที่พบบ่อย</a>
+            </div>
+        </header>
+        
+        <div class="quick-info">
+            <div class="info-card">
+                <i class="fas fa-clock"></i>
+                <h3>เวลาทำการ</h3>
+                <p>จันทร์ - ศุกร์: 9:00 - 17:00 น.<br>เสาร์: 9:00 - 12:00 น.</p>
+                <a href="#contact">ดูรายละเอียด <i class="fas fa-arrow-right"></i></a>
+            </div>
+            
+            <div class="info-card">
+                <i class="fas fa-map-marker-alt"></i>
+                <h3>สถานที่</h3>
+                <p>123 ถนนหลัก เขตธุรกิจ<br>กรุงเทพมหานคร 10110</p>
+                <a href="https://maps.google.com" target="_blank">ดูแผนที่ <i class="fas fa-external-link-alt"></i></a>
+            </div>
+            
+            <div class="info-card">
+                <i class="fas fa-phone"></i>
+                <h3>ติดต่อเรา</h3>
+                <p>โทร: 02-123-4567<br>อีเมล: info@example.com</p>
+                <a href="tel:021234567">โทรเลย <i class="fas fa-phone"></i></a>
+            </div>
+        </div>
+        
+        <div class="booking-section">
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <h2>เลือกวันที่และเวลา</h2>
+                    <div>
+                        <button id="prev-month">&lt;</button>
+                        <span id="current-month">มิถุนายน 2023</span>
+                        <button id="next-month">&gt;</button>
+                    </div>
+                </div>
+                
+                <div class="calendar-grid" id="calendar-days">
+                    <!-- วันในสัปดาห์ -->
+                    <div class="calendar-day">อา</div>
+                    <div class="calendar-day">จ</div>
+                    <div class="calendar-day">อ</div>
+                    <div class="calendar-day">พ</div>
+                    <div class="calendar-day">พฤ</div>
+                    <div class="calendar-day">ศ</div>
+                    <div class="calendar-day">ส</div>
+                    
+                    <!-- วันที่จะถูกเพิ่มโดย JavaScript -->
+                </div>
+                
+                <h3 style="margin-top: 1.5rem;">เลือกช่วงเวลา</h3>
+                <div class="time-slots" id="time-slots">
+                    <!-- ช่วงเวลาจะถูกเพิ่มโดย JavaScript -->
+                </div>
+            </div>
+            
+            <div class="form-container">
+                <h2 id="booking-form">กรอกข้อมูลการจอง</h2>
+                <form id="booking-form-element">
+                    <div class="form-group">
+                        <label for="name">ชื่อ-นามสกุล</label>
+                        <input type="text" id="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">อีเมล</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">เบอร์โทรศัพท์</label>
+                        <input type="tel" id="phone" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="service">บริการที่ต้องการ</label>
+                        <select id="service" required>
+                            <option value="">เลือกบริการ</option>
+                            <option value="consultation">ปรึกษาเบื้องต้น</option>
+                            <option value="treatment">การรักษา</option>
+                            <option value="checkup">ตรวจสุขภาพ</option>
+                            <option value="other">อื่นๆ</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notes">หมายเหตุ (ถ้ามี)</label>
+                        <textarea id="notes" rows="3"></textarea>
+                    </div>
+                    
+                    <button type="submit">ยืนยันการจอง</button>
+                </form>
+                
+                <div class="external-links">
+                    <a href="https://line.me/ti/p/~example" class="external-link" target="_blank">
+                        <i class="fab fa-line"></i> ติดต่อผ่าน LINE
+                    </a>
+                    <a href="https://facebook.com/example" class="external-link" target="_blank">
+                        <i class="fab fa-facebook"></i> Facebook
+                    </a>
+                    <a href="tel:021234567" class="external-link">
+                        <i class="fas fa-phone"></i> โทรจอง
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="confirmation" id="confirmation">
+            <div class="confirmation-icon">✓</div>
+            <h2>การจองของคุณสำเร็จแล้ว!</h2>
+            <p>เราได้ส่งอีเมลยืนยันการจองไปยังคุณแล้ว</p>
+            
+            <div class="confirmation-details" id="confirmation-details">
+                <!-- ข้อมูลการจองจะถูกเพิ่มโดย JavaScript -->
+            </div>
+            
+            <div class="external-links">
+                <button id="new-booking">จองเวลาอีกครั้ง</button>
+                <a href="https://calendar.google.com" class="external-link" target="_blank">
+                    <i class="far fa-calendar-plus"></i> เพิ่มใน Google Calendar
+                </a>
+                <a href="print.html" class="external-link" target="_blank">
+                    <i class="fas fa-print"></i> พิมพ์การจอง
+                </a>
+            </div>
+        </div>
+        
+        <footer>
+            <p>ระบบจองเวลาออนไลน์ &copy; 2023</p>
+            <div class="footer-links">
+                <a href="privacy.html">นโยบายความเป็นส่วนตัว</a>
+                <a href="terms.html">ข้อกำหนดและเงื่อนไข</a>
+                <a href="contact.html">ติดต่อเรา</a>
+                <a href="about.html">เกี่ยวกับเรา</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // ข้อมูลตัวอย่างสำหรับเวลาที่ถูกจองแล้ว
+        const bookedSlots = [
+            '2023-06-15 09:00',
+            '2023-06-15 10:30',
+            '2023-06-16 14:00',
+            '2023-06-18 11:00'
+        ];
+        
+        let selectedDate = null;
+        let selectedTime = null;
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        
+        // ฟังก์ชันสร้างปฏิทิน
+        function generateCalendar(month, year) {
+            const calendarDays = document.getElementById('calendar-days');
+            // ลบวันที่เก่าออก (เก็บเฉพาะวันในสัปดาห์)
+            while (calendarDays.children.length > 7) {
+                calendarDays.removeChild(calendarDays.lastChild);
+            }
+            
+            // อัพเดทเดือนและปีปัจจุบัน
+            document.getElementById('current-month').textContent = 
+                `${getMonthName(month)} ${year}`;
+            
+            // วันแรกของเดือน
+            const firstDay = new Date(year, month, 1);
+            // วันสุดท้ายของเดือน
+            const lastDay = new Date(year, month + 1, 0);
+            // จำนวนวันในเดือน
+            const daysInMonth = lastDay.getDate();
+            // วันในสัปดาห์ของวันแรก (0 = อาทิตย์, 1 = จันทร์, ...)
+            const startingDay = firstDay.getDay();
+            
+            // เพิ่มวันที่ว่างก่อนวันแรกของเดือน
+            for (let i = 0; i < startingDay; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.classList.add('calendar-date', 'disabled');
+                calendarDays.appendChild(emptyCell);
+            }
+            
+            // เพิ่มวันที่ในเดือน
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dateCell = document.createElement('div');
+                dateCell.classList.add('calendar-date');
+                dateCell.textContent = i;
+                
+                // ตรวจสอบว่าเป็นวันที่ผ่านมาแล้วหรือไม่
+                const currentDate = new Date();
+                const cellDate = new Date(year, month, i);
+                if (cellDate < currentDate.setHours(0, 0, 0, 0)) {
+                    dateCell.classList.add('disabled');
+                } else {
+                    dateCell.addEventListener('click', () => selectDate(i, month, year));
+                }
+                
+                calendarDays.appendChild(dateCell);
+            }
+        }
+        
+        // ฟังก์ชันเลือกวันที่
+        function selectDate(day, month, year) {
+            // ลบการเลือกวันที่ก่อนหน้า
+            const allDates = document.querySelectorAll('.calendar-date');
+            allDates.forEach(date => date.classList.remove('selected'));
+            
+            // เลือกวันที่ใหม่
+            const selectedDateElement = [...allDates].find(date => 
+                date.textContent == day && !date.classList.contains('disabled')
+            );
+            
+            if (selectedDateElement) {
+                selectedDateElement.classList.add('selected');
+                selectedDate = `${year}-${padZero(month + 1)}-${padZero(day)}`;
+                generateTimeSlots();
+            }
+        }
+        
+        // ฟังก์ชันสร้างช่วงเวลา
+        function generateTimeSlots() {
+            const timeSlotsContainer = document.getElementById('time-slots');
+            timeSlotsContainer.innerHTML = '';
+            
+            if (!selectedDate) return;
+            
+            const timeSlots = [
+                '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+                '13:00', '13:30', '14:00', '14:30', '15:00', '15:30'
+            ];
+            
+            timeSlots.forEach(time => {
+                const timeSlot = document.createElement('div');
+                timeSlot.classList.add('time-slot');
+                timeSlot.textContent = time;
+                
+                // ตรวจสอบว่าช่วงเวลานี้ถูกจองแล้วหรือไม่
+                const slotKey = `${selectedDate} ${time}`;
+                if (bookedSlots.includes(slotKey)) {
+                    timeSlot.classList.add('booked');
+                } else {
+                    timeSlot.addEventListener('click', () => selectTime(timeSlot, time));
+                }
+                
+                timeSlotsContainer.appendChild(timeSlot);
+            });
+        }
+        
+        // ฟังก์ชันเลือกเวลา
+        function selectTime(timeSlotElement, time) {
+            // ลบการเลือกเวลาก่อนหน้า
+            const allTimeSlots = document.querySelectorAll('.time-slot');
+            allTimeSlots.forEach(slot => slot.classList.remove('selected'));
+            
+            // เลือกเวลาใหม่
+            timeSlotElement.classList.add('selected');
+            selectedTime = time;
+        }
+        
+        // ฟังก์ชันยืนยันการจอง
+        document.getElementById('booking-form-element').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!selectedDate || !selectedTime) {
+                alert('กรุณาเลือกวันที่และเวลาที่ต้องการจอง');
+                return;
+            }
+            
+            // เก็บข้อมูลฟอร์ม
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                service: document.getElementById('service').value,
+                notes: document.getElementById('notes').value,
+                date: selectedDate,
+                time: selectedTime
+            };
+            
+            // แสดงหน้ายืนยัน
+            showConfirmation(formData);
+        });
+        
+        // ฟังก์ชันแสดงหน้ายืนยัน
+        function showConfirmation(data) {
+            const confirmation = document.getElementById('confirmation');
+            const details = document.getElementById('confirmation-details');
+            
+            // สร้างรายละเอียดการจอง
+            details.innerHTML = `
+                <p><strong>ชื่อ-นามสกุล:</strong> ${data.name}</p>
+                <p><strong>อีเมล:</strong> ${data.email}</p>
+                <p><strong>เบอร์โทรศัพท์:</strong> ${data.phone}</p>
+                <p><strong>บริการ:</strong> ${getServiceName(data.service)}</p>
+                <p><strong>วันที่:</strong> ${formatDate(data.date)}</p>
+                <p><strong>เวลา:</strong> ${data.time}</p>
+                ${data.notes ? `<p><strong>หมายเหตุ:</strong> ${data.notes}</p>` : ''}
+            `;
+            
+            // ซ่อนฟอร์มและแสดงการยืนยัน
+            document.querySelector('.booking-section').style.display = 'none';
+            confirmation.style.display = 'block';
+        }
+        
+        // ฟังก์ชันจองเวลาอีกครั้ง
+        document.getElementById('new-booking').addEventListener('click', function() {
+            // รีเซ็ตฟอร์ม
+            document.getElementById('booking-form-element').reset();
+            
+            // รีเซ็ตการเลือกวันที่และเวลา
+            selectedDate = null;
+            selectedTime = null;
+            
+            const allDates = document.querySelectorAll('.calendar-date');
+            allDates.forEach(date => date.classList.remove('selected'));
+            
+            const allTimeSlots = document.querySelectorAll('.time-slot');
+            allTimeSlots.forEach(slot => slot.classList.remove('selected'));
+            
+            // แสดงฟอร์มและซ่อนการยืนยัน
+            document.querySelector('.booking-section').style.display = 'grid';
+            document.getElementById('confirmation').style.display = 'none';
+        });
+        
+        // ฟังก์ชันเปลี่ยนเดือน
+        document.getElementById('prev-month').addEventListener('click', function() {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            generateCalendar(currentMonth, currentYear);
+        });
+        
+        document.getElementById('next-month').addEventListener('click', function() {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            generateCalendar(currentMonth, currentYear);
+        });
+        
+        // ฟังก์ชันช่วยเหลือ
+        function getMonthName(month) {
+            const months = [
+                'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+                'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+            ];
+            return months[month];
+        }
+        
+        function padZero(num) {
+            return num < 10 ? `0${num}` : num;
+        }
+        
+        function getServiceName(serviceCode) {
+            const services = {
+                'consultation': 'ปรึกษาเบื้องต้น',
+                'treatment': 'การรักษา',
+                'checkup': 'ตรวจสุขภาพ',
+                'other': 'อื่นๆ'
+            };
+            return services[serviceCode] || serviceCode;
+        }
+        
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return `${date.getDate()} ${getMonthName(date.getMonth())} ${date.getFullYear() + 543}`;
+        }
+        
+        // เริ่มต้นสร้างปฏิทิน
+        generateCalendar(currentMonth, currentYear);
+    </script>
+</body>
+</html>
